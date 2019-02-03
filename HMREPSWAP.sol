@@ -1,6 +1,8 @@
 pragma solidity >=0.4.22 <0.6.0;
 
 //REVISAR NUMEROS DECIMALES EN EL HASHMRATE.
+//LOS SECURITYS DENTRO DEL SMART CONTRACT NO SE PODRAN SACAR. HABRIA QUE IMPLEMENTARLO.
+//MOVER Y QUEMAR REPUTATION?
 
 library SafeMath {
   function mul(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -112,7 +114,12 @@ contract owned {
   
 
 
-contract HASHMinterface { function transfer(address _to, uint256 _value) public returns (bool success); }
+contract HASHMinterface { 
+    
+function transfer(address _to, uint256 _value) public returns (bool success); 
+function balanceAddress(address _owner) public view returns (uint256 balance);
+
+}
 
 contract HMREPERC20 is owned {
     
@@ -172,7 +179,7 @@ contract HMREPERC20 is owned {
      /// @notice Transfer tokens: Send `_value` tokens to `_to` from your account
      /// @param _to The address of the recipient
      /// @param _value the amount to send
-    function transfer(address _to, uint256 _value) public returns (bool success) {
+    function transfer(address _to, uint256 _value) onlyOwner public returns (bool success) {
         _transfer(msg.sender, _to, _value);
         return true;
     }
@@ -213,22 +220,40 @@ contract HMREPERC20 is owned {
     }
     
     
-    
+    //SWAP REPUTATION TO SECURITY
     
     address public HASHMaddress; 
     uint256 public HASHMrate;
     
-   
+   /**
+     * @dev Set de HASHM Security Token address
+     * @param newAddress address
+     * @return true if the address has been set correctly
+    */
     function setHASHMaddress(address newAddress) onlyOwner public returns (bool) {
         HASHMaddress = newAddress;
         return true;
     }
     
+    
+    
+     /**
+     * @dev Set de HASHM rate in order to modify the HASHM security token that has been received.
+     * @param _value uint256
+     * @return true if the value has been set correctly
+    */
     function setHASHMrate(uint256 _value) onlyOwner public returns (bool) {
         HASHMrate = _value;
         return true;
     }
     
+    
+    
+     /**
+     * @dev Swap function in order to send reputation to the ERC20 reputation contract and receive Security token inside this contract. 
+     * @param _value uint256
+     * @return true if the swap has been done correctly
+    */
     function swapToken(uint256 _value) public returns (bool success) {
         require (balanceOf[msg.sender] >= _value);
         _transfer(msg.sender, address(this), _value);
@@ -237,11 +262,18 @@ contract HMREPERC20 is owned {
         return true;
     }
         
+    
+    
+    /**
+     * @dev Internal function to sent security token in the escrow of the reputation erc20 contract 
+     * @param _to address, _value uint256
+     * @return true if the swap has been done correctly
+    */
     function receiveSecurity(address _to, uint256 _value) internal {
         HASHMinterface(HASHMaddress).transfer(_to, _value);
-        
+       
     }
         
-    
-    
+        
 }
+   
