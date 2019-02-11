@@ -223,7 +223,11 @@ contract HMREPERC20 is owned {
     //SWAP REPUTATION TO SECURITY
     
     address public HASHMaddress; 
-    uint256 public HASHMrate;
+    uint256 public HASHMratemult;
+    uint256 public HASHMratediv;
+    
+     //This generates a public event on the blockchain that will notify clients 
+    event SwapToken(uint256 _reputationToken, uint256 _securityToken);
     
    /**
      * @dev Set de HASHM Security Token address
@@ -242,12 +246,13 @@ contract HMREPERC20 is owned {
      * @param _value uint256
      * @return true if the value has been set correctly
     */
-    function setHASHMrate(uint256 _value) onlyOwner public returns (bool) {
-        HASHMrate = _value;
+    function setHASHMrate(uint256 _valuemult, uint256 _valuediv) onlyOwner public returns (bool) {
+        HASHMratemult = _valuemult;
+        HASHMratediv = _valuediv;
         return true;
     }
     
-    
+
     
      /**
      * @dev Swap function in order to send reputation to the ERC20 reputation contract and receive Security token inside this contract. 
@@ -258,8 +263,9 @@ contract HMREPERC20 is owned {
         require (balanceOf[msg.sender] >= _value);
         require(!frozenAccount[msg.sender]);
         _transfer(msg.sender, address(this), _value);
-        uint256 HASHM = _value*HASHMrate;
+        uint256 HASHM = (_value*HASHMratemult)/HASHMratediv;
         receiveSecurity(msg.sender, HASHM);
+        emit SwapToken(_value, HASHM);
         return true;
     }
         
