@@ -118,7 +118,6 @@ contract owned {
 contract HASHMinterface { 
     
 function transfer(address _to, uint256 _value) public returns (bool success); 
-function balanceAddress(address _owner) public view returns (uint256 balance);
 
 }
 
