@@ -263,7 +263,7 @@ contract HMREPERC20 is owned {
         require (balanceOf[msg.sender] >= _value);
         require(!frozenAccount[msg.sender]);
         _transfer(msg.sender, address(this), _value);
-        uint256 HASHM = (_value*HASHMratemult)/HASHMratediv;
+        uint256 HASHM = div(mult(_value, HASHMratemult), HASHMratediv);
         receiveSecurity(msg.sender, HASHM);
         emit SwapToken(_value, HASHM);
         return true;
