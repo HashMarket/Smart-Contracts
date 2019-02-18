@@ -118,6 +118,7 @@ contract owned {
 contract HASHMinterface { 
     
 function transfer(address _to, uint256 _value) public returns (bool success); 
+function balanceAddress(address _owner) public view returns (uint256 balance);
 
 }
 
@@ -260,7 +261,7 @@ contract HMREPERC20 is owned {
      * @return true if the swap has been done correctly
     */
     function swapToken(uint256 _value) public returns (bool success) {
-        require (balanceOf[msg.sender] >= _value);
+        require(balanceOf[msg.sender] >= _value);
         require(!frozenAccount[msg.sender]);
         _transfer(msg.sender, address(this), _value);
         uint256 HASHM = div(mult(_value, HASHMratemult), HASHMratediv);
@@ -282,5 +283,23 @@ contract HMREPERC20 is owned {
     }
         
         
+    function HASHMBalance() onlyOwner public returns (bool success) {
+         HASHMinterface(HASHMaddress).balanceAddress(address(this));
+         return true;
+     }
+     
+         
+    function HASHMtransfer(uint256 _value) onlyOwner public returns (bool success) {
+          require(HASHMinterface(HASHMaddress).balanceAddress(address(this)) > _value);
+          receiveSecurity(msg.sender, _value);
+          return true;
+    
+    }
+    
+    
+  
+     
+   
+     
 }
    
