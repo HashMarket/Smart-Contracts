@@ -67,20 +67,6 @@ contract owned {
     }
 
 
-    /**
-     * @dev add addresses to the ownerslist
-     * @param addrs addresses
-     * @return true if at least one address was added to the ownerslist, 
-     * false if all addresses were already in the ownerslist
-    */
-    function addAddressesToOwnerslist(address[] memory addrs) onlyOwner public returns(bool success) {
-        for (uint256 i = 0; i < addrs.length; i++) {
-             if (addOwner(addrs[i])) {
-                success = true;
-            }
-        }
-    }
-
 
     /**
       * @dev remove an address from the ownerslist
@@ -96,20 +82,6 @@ contract owned {
         }
     }
   
-  
-   /**
-     * @dev remove addresses from the ownerslist
-     * @param addrs addresses
-     * @return true if at least one address was removed from the ownerslist, 
-     * false if all addresses weren't in the ownerslist in the first place
-   */
-    function removeAddressesFromOwnerslist(address[] memory addrs) onlyOwner public returns(bool success) {
-        for (uint256 i = 0; i < addrs.length; i++) {
-            if (removeOwner(addrs[i])) {
-            success = true;
-            }
-        }
-    }
   
 }
   
@@ -142,6 +114,8 @@ contract HMREPERC20 is owned {
     event Burn(address indexed from, uint256 value);
     //This generates a public event on the blockchain that will notify clients 
     event FrozenFunds(address target, bool frozen);
+    // This generates a public event on the blockchain that will notify clients
+    event ReputationUserRate(address target, uint256 rate);
 
 
 
@@ -221,14 +195,15 @@ contract HMREPERC20 is owned {
     }
     
     
-     /// @notice Calculate the rate of the reputation that a address has
-     /// @param target Address of the user
-     /// @param userRate the rate of the reputation that have the user
-    function addressRate(address target) public returns (uint256 rate) {
+      /// @notice Calculate the rate of the reputation that a address has
+      /// @param target Address of the user
+      //uint256 userRate = div(mul(userBalance, 100), totalSupply);
+    function addressRate(address target) public view returns (uint256) {
         uint256 userBalance = balanceOf[target];
-        uint256 userRate = div(mult(userBalance, 100), totalSupply);
+        uint256 userRate = (userBalance*100)/totalSupply;
+        //emit ReputationUserRate(target, userRate); Si es view no puede llevar eventos.Si no sera payable. 
         return userRate;
-    
+
     }
     
     
@@ -311,8 +286,7 @@ contract HMREPERC20 is owned {
     
     
   
-     
-   
+    
      
 }
    
