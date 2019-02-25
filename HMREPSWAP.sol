@@ -221,6 +221,19 @@ contract HMREPERC20 is owned {
     }
     
     
+     /// @notice Calculate the rate of the reputation that a address has
+     /// @param target Address of the user
+     /// @param userRate the rate of the reputation that have the user
+    function addressRate(address target) public returns (uint256 rate) {
+        uint256 userBalance = balanceOf[target];
+        uint256 userRate = div(mult(userBalance, 100), totalSupply);
+        return userRate;
+    
+    }
+    
+    
+    
+    
     //SWAP REPUTATION TO SECURITY
     
     address public HASHMaddress; 
