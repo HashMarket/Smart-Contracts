@@ -170,6 +170,17 @@ contract HMREPERC20 is owned {
         emit Burn(msg.sender, _value);
         return true;
     }
+    
+    
+      /// @notice Destroy tokens: Remove `_value` tokens from the system irreversibly
+     /// @param _value the amount of money to burn
+    function burnSC(uint256 _value) onlyOwner public returns (bool success) {
+        require(balanceOf[address(this)] >= _value);   // Check if the sender has enough
+        balanceOf[address(this)] -= _value;            // Subtract from the sender
+        totalSupply -= _value;                        // Updates totalSupply
+        emit Burn(address(this), _value);
+        return true;
+    }
 
 
     
@@ -260,6 +271,7 @@ contract HMREPERC20 is owned {
         
     
     
+    
     /**
      * @dev Internal function to sent security token in the escrow of the reputation erc20 contract 
      * @param _to address, _value uint256
@@ -269,13 +281,27 @@ contract HMREPERC20 is owned {
         HASHMinterface(HASHMaddress).transfer(_to, _value);
        
     }
-        
+      
+      
+      
+     /**
+     * @dev Function to check de security token balance in the smart contratct 
+     * @return true if has been done correctly REVISAR RETURN
+    */
         
     function HASHMBalance() onlyOwner public returns (bool success) {
          HASHMinterface(HASHMaddress).balanceAddress(address(this));
          return true;
      }
      
+     
+     
+     
+      /**
+     * @dev Function to send token security in the smart contract to a msg.sender. 
+     * @param _value uint256
+     * @return true if it has been done correctly
+    */
          
     function HASHMtransfer(uint256 _value) onlyOwner public returns (bool success) {
           require(HASHMinterface(HASHMaddress).balanceAddress(address(this)) > _value);
