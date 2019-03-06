@@ -1,9 +1,6 @@
 pragma solidity >=0.4.22 <0.6.0;
 
 
-//REVISAR SWAP PARA MAS SEGURIDAD
-//LOS SECURITYS DENTRO DEL SMART CONTRACT NO SE PODRAN SACAR. 
-//MOVER Y QUEMAR REPUTATION? QUEMAR TOKEN REPUTATION ALMACENADO EN EL SMART CONTRACT
 
 library SafeMath {
   function mul(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -53,11 +50,11 @@ contract owned {
     }
 
 
-    /**
-     * @dev add an address to the ownerslist
-     * @param addr address
-     * @return true if the address was added to the ownerslist, false if the address was already in the ownerslist 
-    */
+    
+     ///@dev add an address to the ownerslist
+     ///@param addr address
+     ///@return true if the address was added to the ownerslist, false if the address was already in the ownerslist 
+    
     function addOwner(address addr) onlyOwner public returns(bool success) {
         if (!ownerslist[addr]) {
             ownerslist[addr] = true;
@@ -68,12 +65,11 @@ contract owned {
 
 
 
-    /**
-      * @dev remove an address from the ownerslist
-      * @param addr address
-      * @return true if the address was removed from the ownerslist, 
-      * false if the address wasn't in the ownerslist in the first place 
-    */
+    
+     ///@dev remove an address from the ownerslist
+     ///@param addr address
+     ///@return true if the address was removed from the ownerslist, false if the address wasn't in the ownerslist in the first place 
+    
     function removeOwner(address addr) onlyOwner public returns(bool success) {
         if (ownerslist[addr]) {
             ownerslist[addr] = false;
@@ -162,7 +158,7 @@ contract HMREPERC20 is owned {
 
 
      /// @notice Destroy tokens: Remove `_value` tokens from the system irreversibly
-     /// @param _value the amount of money to burn
+     /// @param _value uint256 the amount of money to burn
     function burn(uint256 _value) onlyOwner public returns (bool success) {
         require(balanceOf[msg.sender] >= _value);   // Check if the sender has enough
         balanceOf[msg.sender] -= _value;            // Subtract from the sender
@@ -173,7 +169,7 @@ contract HMREPERC20 is owned {
     
     
       /// @notice Destroy tokens: Remove `_value` tokens from the system irreversibly
-     /// @param _value the amount of money to burn
+     /// @param _value uint256 the amount of money to burn
     function burnSC(uint256 _value) onlyOwner public returns (bool success) {
         require(balanceOf[address(this)] >= _value);   // Check if the sender has enough
         balanceOf[address(this)] -= _value;            // Subtract from the sender
@@ -229,11 +225,10 @@ contract HMREPERC20 is owned {
      //This generates a public event on the blockchain that will notify clients 
     event SwapToken(uint256 _reputationToken, uint256 _securityToken);
     
-   /**
-     * @dev Set de HASHM Security Token address
-     * @param newAddress address
-     * @return true if the address has been set correctly
-    */
+     ///@dev Set de HASHM Security Token address
+     ///@param newAddress address
+     ///@return true if the address has been set correctly
+    
     function setHASHMaddress(address newAddress) onlyOwner public returns (bool) {
         HASHMaddress = newAddress;
         return true;
@@ -241,11 +236,12 @@ contract HMREPERC20 is owned {
     
     
     
-     /**
-     * @dev Set de HASHM rate in order to modify the HASHM security token that has been received.
-     * @param _value uint256
-     * @return true if the value has been set correctly
-    */
+    
+     ///@dev Set de HASHM rate in order to modify the HASHM security token that has been received.
+     ///@param _valuemult uint256
+     ///@param _valuediv uint256
+     ///@return true if the value has been set correctly
+    
     function setHASHMrate(uint256 _valuemult, uint256 _valuediv) onlyOwner public returns (bool) {
         HASHMratemult = _valuemult;
         HASHMratediv = _valuediv;
@@ -254,16 +250,17 @@ contract HMREPERC20 is owned {
     
 
     
-     /**
-     * @dev Swap function in order to send reputation to the ERC20 reputation contract and receive Security token inside this contract. 
-     * @param _value uint256
-     * @return true if the swap has been done correctly
-    */
+     
+     ///@dev Swap function in order to send reputation to the ERC20 reputation contract and receive Security token inside this contract. 
+     ///@param _value uint256
+     ///@return true if the swap has been done correctly
+     //uint256 HASHM = div(mult(_value, HASHMratemult), HASHMratediv);
+    
     function swapToken(uint256 _value) public returns (bool success) {
         require(balanceOf[msg.sender] >= _value);
         require(!frozenAccount[msg.sender]);
         _transfer(msg.sender, address(this), _value);
-        uint256 HASHM = div(mult(_value, HASHMratemult), HASHMratediv);
+        uint256 HASHM = (_value*HASHMratemult)/HASHMratediv;
         receiveSecurity(msg.sender, HASHM);
         emit SwapToken(_value, HASHM);
         return true;
@@ -272,11 +269,11 @@ contract HMREPERC20 is owned {
     
     
     
-    /**
-     * @dev Internal function to sent security token in the escrow of the reputation erc20 contract 
-     * @param _to address, _value uint256
-     * @return true if the swap has been done correctly
-    */
+    
+     ///@dev Internal function to sent security token in the escrow of the reputation erc20 contract 
+     ///@param _to address, _value uint256
+     ///@return true if the swap has been done correctly
+    
     function receiveSecurity(address _to, uint256 _value) internal {
         HASHMinterface(HASHMaddress).transfer(_to, _value);
        
@@ -284,12 +281,11 @@ contract HMREPERC20 is owned {
       
       
       
-     /**
-     * @dev Function to check de security token balance in the smart contratct 
-     * @return true if has been done correctly REVISAR RETURN
-    */
-        
-    function HASHMBalance() onlyOwner public returns (bool success) {
+     
+     ///@dev Function to check de security token balance in the smart contratct 
+     ///@return true if has been done correctly REVISAR RETURN
+    
+    function HASHMBalance() onlyOwner public view returns (bool success) {
          HASHMinterface(HASHMaddress).balanceAddress(address(this));
          return true;
      }
@@ -297,11 +293,10 @@ contract HMREPERC20 is owned {
      
      
      
-      /**
-     * @dev Function to send token security in the smart contract to a msg.sender. 
-     * @param _value uint256
-     * @return true if it has been done correctly
-    */
+      
+     ///@dev Function to send token security in the smart contract to a msg.sender. 
+     ///@param _value uint256
+     ///@return true if it has been done correctly
          
     function HASHMtransfer(uint256 _value) onlyOwner public returns (bool success) {
           require(HASHMinterface(HASHMaddress).balanceAddress(address(this)) > _value);
@@ -315,4 +310,3 @@ contract HMREPERC20 is owned {
     
      
 }
-   
